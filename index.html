@@ -1,3 +1,14 @@
-<script src="z3.js" ></script>
+<script src="/out/z3.js" ></script>
+<p>Submit your SMT code</p>
+<textarea id="code" ></textarea><br/>
+<button id="solve" >Solve</button>
+<p id="result" ></p>
+
 <script>
+   const code = document.querySelector("#code")
+   const result = document.querySelector("#result")
+   document.querySelector("#solve").addEventListener("click", function(e) {
+      result.innerText = Z3.solve(code.value)
+   });
 </script>
+
