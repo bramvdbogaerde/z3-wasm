@@ -1,11 +1,11 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if [ -z $Z3_BASE_DIR ]; then
    export Z3_BASE_DIR="$PWD/z3"
 fi
 
 if [ -z $Z3_VERSION ]; then
-   export Z3_VERSION="z3-4.8.9"
+   export Z3_VERSION="z3-4.8.10"
 fi
 
 export ROOT=$PWD
@@ -17,6 +17,7 @@ function available() {
       exit 1
    fi
 }
+
 
 available emcc
 available emconfigure
@@ -35,6 +36,5 @@ emmake make -j$(nproc)
 
 cd $ROOT
 
+export EM_CACHE=$HOME/.emscripten/
 emcc api/api.c $Z3_BASE_DIR/build/libz3.a -s EXPORTED_FUNCTIONS='["_init_context", "_destroy_context", "_eval_smt2"]' -s DISABLE_EXCEPTION_CATCHING=0 -s EXCEPTION_DEBUG=1 -I $Z3_BASE_DIR/src/api/ --post-js api/api.js -o out/z3.js
-
-
