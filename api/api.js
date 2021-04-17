@@ -16,11 +16,13 @@ const Z3 = {
    },
 
    eval_smt2: function (code) {
-      const ptr = allocateString(code)
-      console.log(ptr)
-      return readString(_eval_smt2(ptr))
+      let eval_smt2 = cwrap("eval_smt2", "string", ["string"])
+      return eval_smt2(code)
    },
 
+   onInitialized: function(cb) {
+      onRuntimeInitialized(cb)
+   },
 
    solve: function (code) {
       this.init_context()
