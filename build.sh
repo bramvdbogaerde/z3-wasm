@@ -19,10 +19,11 @@ function available() {
 }
 
 
+
 available emcc
 available emconfigure
 
-mkdir -p out
+mkdir -p out/cache
 mkdir -p $Z3_BASE_DIR
 
 cd $Z3_BASE_DIR
@@ -30,11 +31,13 @@ git clone https://github.com/Z3Prover/z3 .
 git fetch --all --tags
 git checkout $Z3_VERSION 
 
-emconfigure python scripts/mk_make.py --staticlib
+export CXXFLAGS="-pthread -s DISABLE_EXCEPTION_CATCHING=0 -s USE_PTHREADS=1"
+export LDFLAGS="-s USE_PTHREADS=1"
+# emconfigure python scripts/mk_make.py --staticlib 
 cd build
 emmake make -j$(nproc)
 
 cd $ROOT
 
 export EM_CACHE=$HOME/.emscripten/
-emcc api/api.c $Z3_BASE_DIR/build/libz3.a -s EXPORTED_FUNCTIONS='["_init_context", "_destroy_context", "_eval_smt2"]' -s DISABLE_EXCEPTION_CATCHING=0 -s EXCEPTION_DEBUG=1 -I $Z3_BASE_DIR/src/api/ --post-js api/api.js -o out/z3.js
+emcc api/api.c $Z3_BASE_DIR/build/libz3.a -fexceptions -pthread -s EXPORTED_FUNCTIONS='["_init_context", "_destroy_context", "_eval_smt2"]' -s DISABLE_EXCEPTION_CATCHING=0 -s EXCEPTION_DEBUG=1 -s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE=4 -s TOTAL_MEMORY=1GB -I $Z3_BASE_DIR/src/api/ --post-js api/api.js -o out/z3.js
