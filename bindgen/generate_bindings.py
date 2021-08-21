@@ -102,8 +102,8 @@ def parse_file(filename):
 
     return [ visitor.accept(token) for token in tu.cursor.get_children() ]
 
-def open_file_writer(filename):
-    pass
+def open_file_writer(filename, options = "w"):
+    return open(filename, options)
 
 def translate_decl(decl, writer)
     """
@@ -141,6 +141,7 @@ if __name__ == "__main__":
         declarations = parse_file(config["z3_location"]+"/src/api/z3.h")
         writer = open_file_writer(config["output_location"]+"/z3-bindings.js")
         translate_decls(declarations, writer)
+        writer.close()
     except CommandLineArgumentError as e:
         print(USAGE)
     except Exception as e:
