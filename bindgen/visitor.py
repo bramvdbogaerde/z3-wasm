@@ -21,7 +21,10 @@ def visitor(on):
         if on(item) in self.__visitor_dispatcher:
             return self.__visitor_dispatcher[on(item)](self, item)
         else:
-            return item
+            return self.default(item)
+    
+    def default(self, item):
+        return item
 
     def inner(cls): 
         dispatcher = {}
@@ -31,6 +34,9 @@ def visitor(on):
 
         cls.__visitor_dispatcher = dispatcher
         cls.accept = accept
+
+        if not hasattr(cls, "default"):
+            cls.default = default
 
         return cls
 
