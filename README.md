@@ -16,6 +16,16 @@ using environment variables. `Z3_BASE_DIR` controls the location of the
 cloned Z3 repository, while `Z3_VERSION` alters the version that is 
 fetched from Github.
 
+## Binding Generator
+
+The `bindgen` directory contains some Python scripts to automate generating Javascript bindings for the Z3 C Api.
+
+Currently, all functions declared in `z3/src/api/z3.h` of the original Z3 source are used for the Javascript bindings, all `Z3_*`
+types are treated as opaque pointers (i.e., just numbers from Javascript's point of view) except for `Z3_string` which is treated as a string.
+
+As of yet, the bindings remains untested, so it might be possible that an incorrect type is assigned to a particular parameter which might
+lead to undefined behaviour.
+
 ## Related repositories
 
 Clément Pit-Claudel has performed similar steps as I have taken here. 
