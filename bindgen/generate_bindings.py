@@ -20,6 +20,9 @@ Usage: generate_bindings.py Z3_SOURCE_LOCATION OUTPUT_LOCATION
 
 @visitor(on = lambda token: token.kind)
 class HeaderVisitor:
+    def default(self, _): 
+        return None
+
     @visit(cindex.CursorKind.FUNCTION_DECL)
     def visit_function_decl(self, decl):
         """
@@ -52,14 +55,14 @@ class HeaderVisitor:
                 parameters = [ self.accept(ret_tpy_maybe) ]
             elif not(ret_tpy_maybe):
                 # not return type and no parameters
-                return Declaration(decl.displayname, ret_tpy, parameters)
+                return Declaration(decl.spelling, ret_tpy, parameters)
             else:
                 raise UnexpectedASTNode(ret_tpy_maybe)
 
             # Variable number of parameters
             parameters = parameters + [ self.accept(parameter) for parameter in children ]
 
-            return Declaration(decl.displayname, ret_tpy, parameters)
+            return Declaration(decl.spelling, ret_tpy, parameters)
 
     @visit(cindex.CursorKind.TYPE_REF)
     def visit_type_ref(self, type_ref):
@@ -100,25 +103,40 @@ def parse_file(filename):
 
         raise CouldNotParseHeader()
 
-    return [ visitor.accept(token) for token in tu.cursor.get_children() ]
+    return filter(lambda decl: decl, [ visitor.accept(token) for token in tu.cursor.get_children() ])
 
 def open_file_writer(filename, options = "w"):
     return open(filename, options)
 
-def translate_decl(decl, writer)
+def translate_tpy(tpy):
+    """
+    Translates a Z3 C type to a Javascript type.
+
+    :return Either "string" or "number", "number" is used for any other type than a string, because Z3 API mostly
+    works with opaque pointers.
+    """
+
+    if tpy == "Z3_string": 
+        return "string"
+    else:
+        return "number"
+
+def translate_decl(decl, writer):
     """
     Translates a single declaration into a Javascript function by writing to a sink using the given writer
     """
-
-    writer.write("""
-        "%s": function() {
-
-        }
-    """ % (name,))
+    javascript_name = decl.name[3:] # remove Z3_ prefix from javascript name
+    c_name = decl.name
+    ret_tpy = translate_tpy(decl.ret_tpy)
+    argument_types = ",".join([ translate_tpy(tpy) for tpy in decl.parameters ])
+    writer.write("""      "%s": Module.cwrap("%s", "%s", [%s]),
+    """ % (javascript_name, c_name, ret_tpy, argument_types))
 
 def translate_decls(declarations, writer):
+    writer.write("const Z3 = {\n")
     for declaration in declarations:
         translate_decl(declaration, writer)
+    writer.write("}\n")
 
 def __parse_args():
     """
