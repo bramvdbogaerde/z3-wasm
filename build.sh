@@ -36,7 +36,7 @@ git checkout $Z3_VERSION
 
 export CXXFLAGS="-pthread -s DISABLE_EXCEPTION_CATCHING=0 -s USE_PTHREADS=1"
 export LDFLAGS="-s USE_PTHREADS=1"
-# emconfigure python scripts/mk_make.py --staticlib 
+emconfigure python scripts/mk_make.py --staticlib 
 cd build
 emmake make -j$(nproc)
 
