@@ -138,6 +138,18 @@ def translate_decls(declarations, writer):
         translate_decl(declaration, writer)
     writer.write("}\n")
 
+def write_export_list(decls, writer):
+    """
+    Writers the names of the functions to export to the given writer, where each line 
+    in the output is the name of a single function.
+
+    :param decls an iterable of `Declaration`s 
+    :param writer an object that supports a `write` method
+    """
+
+    for decl in decls:
+        writer.write(decl.name+"\n")
+
 def __parse_args():
     """
     Parses the command line arguments, and raises an error if not all required
@@ -156,10 +168,16 @@ def __parse_args():
 if __name__ == "__main__":
     try: 
         config = __parse_args()
-        declarations = parse_file(config["z3_location"]+"/src/api/z3.h")
+        declarations = list(parse_file(config["z3_location"]+"/src/api/z3.h"))
         writer = open_file_writer(config["output_location"]+"/z3-bindings.js")
         translate_decls(declarations, writer)
         writer.close()
+
+        # write list of Z3 functions that need to be in the export list of the WASM module
+        writer = open_file_writer(config["output_location"]+"/export_list.txt")
+        write_export_list(declarations, writer)
+        writer.close()
+
     except CommandLineArgumentError as e:
         print(USAGE)
     except Exception as e:
