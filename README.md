@@ -1,6 +1,11 @@
 Z3 WASM
 =========
 
+**This library is superceded by the official WebAssembly/TypeScript/Javascript bindings of Z3, see [https://github.com/Z3Prover/z3/tree/master/src/api/js](https://github.com/Z3Prover/z3/tree/master/src/api/js)**
+
+
+## Original README 
+
 This repository contains scripts that makes interaction
 with the Z3 solver from a browser using WASM easier.
 
